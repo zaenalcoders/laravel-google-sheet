@@ -32,13 +32,16 @@
             </div>
         </div>
         <div>
-            <div id="chart"></div>
+            <div id="bar_chart"></div>
+            <div id="pie_chart" class="mt-3"></div>
         </div>
     </div>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script>
         $(document).ready(() => {
-            Highcharts.chart('chart', {
+            var categories = {!! collect($data->categories)->toJson() !!} || [];
+            var values = {!! collect($data->values)->toJson() !!} || [];
+            Highcharts.chart('bar_chart', {
                 chart: {
                     type: 'column'
                 },
@@ -46,13 +49,35 @@
                     text: 'Google sheet data'
                 },
                 xAxis: {
-                    categories: {!! collect($data->categories)->toJson() !!},
+                    categories: categories,
                     crosshair: true
                 },
                 series: [{
                     name: 'Data',
-                    data: {!! collect($data->values)->toJson() !!}
+                    data: values
 
+                }]
+            });
+            $.each(categories, function(i, e) {
+
+            });
+            var pie_data = categories.map((i, idx) => {
+                return {
+                    name: i,
+                    y: values[idx]
+                };
+            });
+            Highcharts.chart('pie_chart', {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Pie Data'
+                },
+                series: [{
+                    name: 'Data',
+                    colorByPoint: true,
+                    data: pie_data
                 }]
             });
         });
