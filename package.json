@@ -10,11 +10,9 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "@fontsource/material-icons": "^4.5.0",
         "@fontsource/roboto": "^4.5.1",
         "@fontsource/roboto-mono": "^4.5.0",
         "@popperjs/core": "^2.10.2",
-        "axios": "^0.21",
         "bootstrap": "^5.1.1",
         "jquery": "^3.6.0",
         "laravel-mix": "^6.0.6",

@@ -43,28 +43,39 @@ class HomeController extends Controller
         })->unique('name')->values();
         $tbc = collect($collect_data)->filter(function ($i) {
             return $i['status'] == 'To Be Confirmed';
-        })->unique('name')->values()->count();
+        })->unique('name')->values();
         $cancel = collect($collect_data)->filter(function ($i) {
             return $i['status'] == 'Cancel';
         })->unique('name')->values();
-        $data['summary']['jumlah_perusahaan'] = $done->count() + $tbc;
-        $data['summary']['jumlah_sasaran'] = collect($collect_data)->sum(function ($i) {
+        $data['summary']['perusahaan'] = $done->count() + $tbc->count();
+        $data['summary']['sasaran'] = collect($collect_data)->sum(function ($i) {
             return (int)$i['pesanan'];
         });
-        $data['summary']['jumlah_dosis'] = $data['summary']['jumlah_sasaran'] * 2;
-        $data['data']['done']['perusahaan'] = $done->count();
-        $data['data']['done']['dosis'] = $done->sum(function ($i) {
+        $data['summary']['dosis'] = $data['summary']['sasaran'] * 2;
+
+        $data['summary']['pie']['perusahaan']['done'] = $done->count();
+        $data['summary']['pie']['perusahaan']['tbc'] = $tbc->count();
+
+        $data['summary']['pie']['dosis']['done'] = $done->sum(function ($i) {
             return (int)$i['dosis'];
         });
-        $data['data']['cancel']['perusahaan'] = $cancel->count();
-        $data['data']['cancel']['dosis'] = $cancel->sum(function ($i) {
+        $data['summary']['pie']['dosis']['tbc'] = $tbc->sum(function ($i) {
+            return (int)$i['dosis'];
+        });
+
+        $data['pks']['done']['perusahaan'] = $done->count();
+        $data['pks']['done']['dosis'] = $done->sum(function ($i) {
+            return (int)$i['dosis'];
+        });
+        $data['pks']['cancel']['perusahaan'] = $cancel->count();
+        $data['pks']['cancel']['dosis'] = $cancel->sum(function ($i) {
             return (int)$i['pesanan'] * 2;
         });
-        $data['data']['tbc']['perusahaan'] = $tbc;
-        $data['data']['tbc']['dosis'] = $cancel->sum(function ($i) {
+        $data['pks']['tbc']['perusahaan'] = $tbc->count();
+        $data['pks']['tbc']['dosis'] = $cancel->sum(function ($i) {
             return (int)$i['pesanan'] * 2;
-        }) - ($data['data']['done']['dosis'] - $data['data']['cancel']['dosis']);
-        return response(json_encode($data, JSON_PRETTY_PRINT))->header('content-type', 'application/json');
+        }) - ($data['pks']['done']['dosis'] - $data['pks']['cancel']['dosis']);
+        return $data;
     }
     /**
      * index
@@ -74,44 +85,8 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->kadin();
-        //BUMN
-        // $cached = Sheets::spreadsheet('1rLEy9cw60TePbn-5M1tqf1A3g5zebNjhNsdDGYCPcY8')
-        //     ->sheet('Analisis (Rev 001-OnGoing)')
-        //     ->range('B2:B100')
-        //     ->get();
-        // return response()->json($cached);
-        $data = Sheets::spreadsheet(config('sheets.spreadsheet_id'))
-            ->sheet(config('sheets.sheet_id'))
-            ->range('C2:C100000')
-            ->get();
-        // $done = $test->filter(function ($i) {
-        //     return $i['status'] == 'Done';
-        // })->values()->unique('name')->count();
-        // $data['test'] = $test;
-        // $data['done'] = $done;
-        return response(json_encode($data, JSON_PRETTY_PRINT))->header('content-type', 'application/json');
-        $summary = Sheets::spreadsheet(config('sheets.spreadsheet_id'))
-            ->sheet(config('sheets.sheet_id'))
-            ->range('A1:B1')
-            ->get();
-        $items = [];
-        foreach ($summary as $sheet) {
-            $items['count'] = (int)$sheet[0];
-            $items['total'] = (int)$sheet[1];
-        }
-        $sheet_data = Sheets::spreadsheet(config('sheets.spreadsheet_id'))
-            ->sheet(config('sheets.sheet_id'))
-            ->range('A3:B1400')
-            ->get();
-        $data = new stdClass;
-        $data->summary = (object)$items;
-        $data->categories = (object)collect($sheet_data)->map(function ($i) {
-            return $i[0];
-        });
-        $data->values = (object)collect($sheet_data)->map(function ($i) {
-            return (float)$i[1];
-        });
-        return response()->view('home', compact('data'));
+        // return $this->kadin();
+        $data = $this->kadin();
+        return response()->view('pages.dashboard', compact('data'));
     }
 }

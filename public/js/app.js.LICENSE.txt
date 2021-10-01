@@ -29,6 +29,20 @@
  * Date: 2021-03-02T17:08Z
  */
 
+/*!
+ * pace.js v1.2.4
+ * https://github.com/CodeByZach/pace/
+ * Licensed MIT © HubSpot, Inc.
+ */
+
+/*!
+* metismenu https://github.com/onokumus/metismenu#readme
+* A collapsible jQuery menu plugin
+* @version 3.0.7
+* @author Osman Nuri Okumus <onokumus@gmail.com> (https://github.com/onokumus)
+* @license: MIT 
+*/
+
 /**
  * @license
  * Lodash <https://lodash.com/>
